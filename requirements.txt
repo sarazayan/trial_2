@@ -8,3 +8,4 @@ google-generativeai
 transformers
 huggingface_hub
 sentence_transformers
+PyPDF2==3.0.1

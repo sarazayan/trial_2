@@ -1,98 +1,55 @@
+from dotenv import load_dotenv
 import streamlit as st
-from langchain.vectorstores import Chroma
-from langchain.chains import RetrievalQA
-from langchain.llms import GooglePalm
-from langchain.embeddings import GooglePalmEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.prompts import PromptTemplate
-from io import StringIO
 from PyPDF2 import PdfReader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+from langchain.chains.question_answering import load_qa_chain
+from langchain.llms import OpenAI
+from langchain.callbacks import get_openai_callback
 
 
-# Build prompt
-template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. Always say "thanks for asking!" at the end of the answer. 
-{context}
-Question: {question}
-Helpful Answer:"""
-QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
+def main():
+    load_dotenv()
+    st.set_page_config(page_title="Ask your PDF", page_icon="🧊")
+    st.header("Ask your PDF 💬")
 
-def generate_response(uploaded_file, google_api_key, query_text):
-    # Load document if file is uploaded
-    if uploaded_file is not None:
-        documents = [uploaded_file.read().decode()]
+    # upload file
+    pdf = st.file_uploader("Upload your PDF", type="pdf")
 
-        
-
-        
-        
-        # Split documents into chunks
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=32, separators=["\n\n", "\n", ",", " ", "."])
-        texts = text_splitter.create_documents(documents)
-        st.write(len(texts))
-        
-        # Select embeddings
-        embeddings = GooglePalmEmbeddings(google_api_key=google_api_key)
-        
-        # Create a vectorstore from documents
-        db = Chroma.from_documents(texts, embeddings) 
-        
-        # Create retriever interface
-        retriever = db.as_retriever(k=3)
-        # retriever = db.as_retriever(k=2, fetch_k=4)
-        # retriever = db.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": .9})
-        
-        # Create QA chain
-        #qa = RetrievalQA.from_chain_type(llm=GooglePalm(google_api_key=google_api_key, temperature=0.1, max_output_tokens=128), chain_type="stuff", retriever=retriever)
-        qa = RetrievalQA.from_chain_type(llm=GooglePalm(google_api_key=google_api_key, temperature=0.1, max_output_tokens=128),
-                                         chain_type="stuff",
-                                         retriever=retriever,
-                                         return_source_documents=True,
-                                         chain_type_kwargs={"prompt": QA_CHAIN_PROMPT})
-    
-        return qa({"query": query_text})
-        #return qa.run(query_text)
-
-
-# Page title
-st.set_page_config(page_title='Ask your Doc via PaLM🌴 Model , LangChain 🦜🔗 and Chroma')
-st.title('Ask your Doc via PaLM🌴 Model , LangChain 🦜🔗 and Chroma')
-
-# File upload
-#uploaded_file = st.file_uploader('Upload text file', type='pdf',accept_multiple_files=True)
-
-pdf = st.file_uploader("Upload your PDF", type='pdf')
- 
-    # st.write(pdf)
+    # extract the text
     if pdf is not None:
         pdf_reader = PdfReader(pdf)
-        
         text = ""
         for page in pdf_reader.pages:
             text += page.extract_text()
 
+        # split into chunks
+        text_splitter = CharacterTextSplitter(
+            separator="\n",
+            chunk_size=1000,
+            chunk_overlap=200,
+            length_function=len
+        )
+        chunks = text_splitter.split_text(text)
+
+        # create embeddings
+        embeddings = OpenAIEmbeddings()
+        knowledge_base = FAISS.from_texts(chunks, embeddings)
+
+        # show user input
+        user_question = st.text_input("Ask a question about your PDF:")
+        if user_question:
+            docs = knowledge_base.similarity_search(user_question)
+
+            llm = OpenAI()
+            chain = load_qa_chain(llm, chain_type="stuff")
+            with get_openai_callback() as cb:
+                response = chain.run(input_documents=docs, question=user_question)
+                print(cb)
+
+            st.write(response)
 
 
-# Query text
-query_text = st.text_input('Enter your question:', placeholder = 'Please provide a short summary.', disabled=not uploaded_file)
-
-# Form input and query
-result = []
-with st.form('myform', clear_on_submit=True):
-    google_api_key = st.text_input('Google PaLM🌴 API Key', type='password', disabled=not (uploaded_file and query_text))
-    submitted = st.form_submit_button('Submit', disabled=not(uploaded_file and query_text))
-    #if submitted and openai_api_key.startswith('AIz'):
-    if submitted and google_api_key:
-        with st.spinner('Calculating...'):
-            response = generate_response(uploaded_file, google_api_key, query_text)
-            result.append(response)
-            del google_api_key
-
-if len(result):
-    st.markdown('**Answer:** **:blue[' + response['result'] + "]**")
-    st.markdown('---')
-    
-    st.markdown('**References:** ')
-    for i, sd in enumerate(response['source_documents']):
-        st.markdown('**Ref ' + str(i) + '** :green[' + sd.page_content[:70] + "... ]")
-        print(sd.metadata)
-        
+if __name__ == '__main__':
+    main()

@@ -53,15 +53,15 @@ def generate_response(*uploaded_files,google_api_key,query_text):
             return
 
 
-# Page title
-st.set_page_config(page_title='Ask your PDF via PaLM🌴 Model , LangChain 🦜🔗 and Chroma vector DB. By: Ibrahim Sobh')
-st.title('Ask your PDF via PaLM🌴 Model , LangChain 🦜🔗 and Chroma vector DB. By: Ibrahim Sobh')
-
-# File upload
-#uploaded_file = st.file_uploader('Upload text file', type='txt')
-uploaded_files = st.file_uploader('Upload pdf file', type=['pdf'],accept_multiple_files=True)
-
-# Query text
+    # Page title
+    st.set_page_config(page_title='Ask your PDF via PaLM🌴 Model , LangChain 🦜🔗 and Chroma vector DB. By: Ibrahim Sobh')
+    st.title('Ask your PDF via PaLM🌴 Model , LangChain 🦜🔗 and Chroma vector DB. By: Ibrahim Sobh')
+    
+    # File upload
+    #uploaded_file = st.file_uploader('Upload text file', type='txt')
+    uploaded_files = st.file_uploader('Upload pdf file', type=['pdf'],accept_multiple_files=True)
+    
+    # Query text
 for uploaded_file in uploaded_files:
     query_text = st.text_input('Enter your question:', placeholder = 'Please provide a short summary.', disabled=not uploaded_file)
     

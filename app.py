@@ -58,7 +58,7 @@ st.title('Ask your PDF via PaLM🌴 Model , LangChain 🦜🔗 and Chroma vector
 
 # File upload
 #uploaded_file = st.file_uploader('Upload text file', type='txt')
-uploaded_file = st.file_uploader('Upload pdf file', type='pdf')
+uploaded_files = st.file_uploader('Upload pdf file', type='pdf',accept_multiple_files=True)
 
 # Query text
 query_text = st.text_input('Enter your question:', placeholder = 'Please provide a short summary.', disabled=not uploaded_file)

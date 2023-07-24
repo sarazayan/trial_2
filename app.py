@@ -67,11 +67,11 @@ query_text = st.text_input('Enter your question:', placeholder = 'Please provide
 # Form input and query
 result = []
 with st.form('myform', clear_on_submit=True):
-    google_api_key = st.text_input('Google PaLM🌴 API Key', type='password', disabled=not (uploaded_file and query_text))
-    submitted = st.form_submit_button('Submit', disabled=not(uploaded_file and query_text))
+    google_api_key = st.text_input('Google PaLM🌴 API Key', type='password', disabled=not (uploaded_files and query_text))
+    submitted = st.form_submit_button('Submit', disabled=not(uploaded_files and query_text))
     if submitted and google_api_key:
         with st.spinner('Calculating...'):
-            response = generate_response(uploaded_file, google_api_key, query_text)
+            response = generate_response(uploaded_files, google_api_key, query_text)
             if response:
                 result.append(response)
             del google_api_key

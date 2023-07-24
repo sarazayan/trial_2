@@ -62,7 +62,6 @@ def generate_response(*uploaded_files,google_api_key,query_text):
     uploaded_files = st.file_uploader('Upload pdf file', type=['pdf'],accept_multiple_files=True)
     
     # Query text
-for uploaded_file in uploaded_files:
     query_text = st.text_input('Enter your question:', placeholder = 'Please provide a short summary.', disabled=not uploaded_file)
     
     # Form input and query

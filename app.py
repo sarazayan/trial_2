@@ -14,7 +14,7 @@ template = """Use the following pieces of context to answer the question at the 
 Question: {question}
 Helpful Answer:"""
 QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
-
+@staticmethod
 def generate_response(*uploaded_files,google_api_key,query_text):
     # Load document if file is uploaded
     for uploaded_file in uploaded_files:

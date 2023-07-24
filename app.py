@@ -15,7 +15,7 @@ Question: {question}
 Helpful Answer:"""
 QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
 @staticmethod
-def generate_response(*uploaded_files,google_api_key,query_text):
+def generate_response(uploaded_files,google_api_key,query_text):
     # Load document if file is uploaded
     for uploaded_file in uploaded_files:
         if uploaded_file is not None:

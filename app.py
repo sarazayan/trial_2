@@ -62,13 +62,13 @@ st.title('Ask your PDF via PaLM🌴 Model , LangChain 🦜🔗 and Chroma vector
 uploaded_files = st.file_uploader('Upload pdf file', type=['pdf'],accept_multiple_files=True)
 
 # Query text
-query_text = st.text_input('Enter your question:', placeholder = 'Please provide a short summary.', disabled=not uploaded_file)
+query_text = st.text_input('Enter your question:', placeholder = 'Please provide a short summary.', disabled=not )
 
 # Form input and query
 result = []
 with st.form('myform', clear_on_submit=True):
-    google_api_key = st.text_input('Google PaLM🌴 API Key', type='password', disabled=not (uploaded_file and query_text))
-    submitted = st.form_submit_button('Submit', disabled=not(uploaded_file and query_text))
+    google_api_key = st.text_input('Google PaLM🌴 API Key', type='password', disabled=not )
+    submitted = st.form_submit_button('Submit', disabled=not)
     if submitted and google_api_key:
         with st.spinner('Calculating...'):
             response = generate_response(uploaded_files, google_api_key, query_text)

@@ -38,7 +38,7 @@ def generate_response(uploaded_files,google_api_key,query_text):
                 
                 # Create QA chain
                 #qa = RetrievalQA.from_chain_type(llm=GooglePalm(google_api_key=google_api_key, temperature=0.1, max_output_tokens=128), chain_type="stuff", retriever=retriever)
-                qa = RetrievalQA.from_chain_type(llm=GooglePalm(google_api_key=google_api_key, temperature=1, max_output_tokens=128),
+                qa = RetrievalQA.from_chain_type(llm=GooglePalm(google_api_key=google_api_key, temperature=0.1, max_output_tokens=128),
                                                  chain_type="stuff",
                                                  retriever=retriever,
                                                  return_source_documents=True,
